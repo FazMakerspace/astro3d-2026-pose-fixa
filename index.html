@@ -218,10 +218,15 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
   });
   document.getElementById("corte").addEventListener("input", function (e) { plano.constant = +e.target.value; });
 
-  var VISTAS = { frente: [0, 683, 3300], lado: [3300, 683, 0], tras: [0, 683, -3300], livre: [2100, 1250, 2300] };
+  var VISTAS = { frente: [0, 0, 1], lado: [1, 0, 0], tras: [0, 0, -1], livre: [0.62, 0.17, 0.77] };
   var botoes = document.querySelectorAll("#vistas button");
+  function distancia() {   // enquadra 1,45 m de altura e 1,3 m de largura, mesmo em janela estreita
+    var t = Math.tan(cam.fov * Math.PI / 360);
+    return Math.max(725 / t, 650 / (t * (box.clientWidth / box.clientHeight)));
+  }
   function vista(n) {
-    cam.position.fromArray(VISTAS[n]); ctl.target.set(0, 683, 0); ctl.update();
+    var d = VISTAS[n], k = distancia();
+    cam.position.set(d[0] * k, 683 + d[1] * k, d[2] * k); ctl.target.set(0, 683, 0); ctl.update();
     botoes.forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.v === n ? "true" : "false"); });
   }
   botoes.forEach(function (b) { b.addEventListener("click", function () { vista(b.dataset.v); }); });
