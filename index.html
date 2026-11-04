@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Astro — Pose Fixa</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+/* layout: mesma linguagem do estudo dimensional; vista 3D à esquerda, camadas e dados à direita */
+:root{
+  --bg:#f5f4f1; --painel:#ffffff; --fg:#1d232a; --fg2:#5c666f; --vista:#e9e7e2;
+  --tubo:#1565c0; --junta:#e65100; --linha:#d9d6cf;
+  --display:"Archivo","IBM Plex Sans",system-ui,sans-serif;
+  --corpo:"IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15191e; --painel:#1d232a; --fg:#e8eaed; --fg2:#9aa4ad; --vista:#101418;
+    --tubo:#64a5e8; --junta:#ff8a3d; --linha:#333b44;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15191e; --painel:#1d232a; --fg:#e8eaed; --fg2:#9aa4ad; --vista:#101418;
+  --tubo:#64a5e8; --junta:#ff8a3d; --linha:#333b44;
+  color-scheme:dark;
+}
+body{background:var(--bg);color:var(--fg);font-family:var(--corpo);
+  padding-inline:16px;padding-block:18px;max-width:1280px;margin-inline:auto}
+header h1{font-family:var(--display);font-weight:700;font-size:1.5rem;margin:0;text-wrap:balance}
+header p{margin:.3rem 0 0;color:var(--fg2);font-size:.9rem;max-width:70ch}
+.principal{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;margin-top:18px}
+.coluna-dir{display:flex;flex-direction:column;gap:16px;min-width:0}
+.painel{background:var(--painel);border:1px solid var(--linha);border-radius:8px;min-width:0}
+.barra-vis{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  padding:8px 14px;border-bottom:1px solid var(--linha)}
+.painel h2{font-family:var(--display);font-size:.82rem;font-weight:700;margin:0;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--fg2)}
+.modos{display:flex;gap:6px;flex-wrap:wrap}
+.modos button{font-family:var(--corpo);font-size:.8rem;padding:4px 12px;border-radius:999px;
+  border:1px solid var(--linha);background:var(--bg);color:var(--fg2);cursor:pointer}
+.modos button[aria-pressed="true"]{background:var(--tubo);border-color:var(--tubo);color:#fff}
+.modos button:focus-visible{outline:2px solid var(--junta)}
+#vista3d{position:relative;height:min(74vh,720px);min-height:420px;touch-action:none;background:var(--vista);border-radius:0 0 8px 8px;overflow:hidden}
+#vista3d canvas{display:block}
+#aviso{position:absolute;inset:0;display:grid;place-items:center;padding:16px;text-align:center;
+  font-family:var(--mono);font-size:.85rem;color:var(--fg2);pointer-events:none}
+.painel-corpo{padding:12px 16px}
+.painel>h2{padding:12px 16px 0}
+.camadas{display:grid;gap:8px}
+.camadas label{display:flex;align-items:center;gap:9px;font-size:.9rem;cursor:pointer}
+.camadas i{width:12px;height:12px;border-radius:3px;flex:none}
+.controle{display:grid;gap:4px;margin-top:12px;font-size:.78rem;color:var(--fg2)}
+.controle input{width:100%;accent-color:var(--tubo)}
+dl.info{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:0;font-size:.88rem}
+dl.info dt{color:var(--fg2)}
+dl.info dd{margin:0;font-variant-numeric:tabular-nums;text-align:right}
+.nota{font-size:.84rem;color:var(--fg2);margin:0}
+footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)}
+@media (max-width:860px){
+  .principal{grid-template-columns:1fr}
+  #vista3d{height:64vh}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Astro — Pose Fixa</h1>
+  <p>Estudo da estátua sem articulações (OS-2026-0821 · FAZ Makerspace): cabeça e tronco em cascas modeladas, braços e pernas do modelo original, sobre um esqueleto simplificado. Visualização de estudo, sujeita a ajuste no detalhamento.</p>
+  <p>Revisão 04/11/2026.</p>
+</header>
+
+<div class="principal">
+  <div class="painel">
+    <div class="barra-vis">
+      <h2>Vista 3D</h2>
+      <div class="modos" id="vistas">
+        <button data-v="frente" aria-pressed="true">Frente</button>
+        <button data-v="lado" aria-pressed="false">Lado</button>
+        <button data-v="tras" aria-pressed="false">Trás</button>
+        <button data-v="livre" aria-pressed="false">3/4</button>
+      </div>
+    </div>
+    <div id="vista3d"><div id="aviso">Carregando modelos…</div></div>
+  </div>
+
+  <div class="coluna-dir">
+    <div class="painel">
+      <h2>Camadas</h2>
+      <div class="painel-corpo">
+        <div class="camadas" id="camadas"></div>
+        <div class="controle">
+          <label for="opac">Opacidade das cascas</label>
+          <input id="opac" type="range" min="5" max="100" value="22">
+        </div>
+        <div class="controle">
+          <label for="corte">Corte frente → trás</label>
+          <input id="corte" type="range" min="-340" max="340" value="340">
+        </div>
+      </div>
+    </div>
+    <div class="painel">
+      <h2>Dados</h2>
+      <div class="painel-corpo">
+        <dl class="info">
+          <dt>Altura ao topo da cabeça</dt><dd>1,30 m</dd>
+          <dt>Altura com antenas</dt><dd>1,37 m</dd>
+          <dt>Tubos de alumínio</dt><dd>4</dd>
+          <dt>Coluna</dt><dd>Ø 1½"</dd>
+          <dt>Ombros e pernas</dt><dd>Ø 1"</dd>
+          <dt>Casca sobre o tubo</dt><dd>≥ 3 mm</dd>
+          <dt>Base MDF</dt><dd>Ø 880 mm</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="painel">
+      <h2>Estado</h2>
+      <div class="painel-corpo">
+        <p class="nota">Os tubos estão traçados. As peças de ligação são conceito. Cortes dos braços e pernas, encaixes e fixação na base ainda serão desenhados.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<footer>FAZ Makerspace · OS-2026-0821 · estudo de pose fixa · rev. 04/11/2026</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function () {
+  var box = document.getElementById("vista3d"), aviso = document.getElementById("aviso");
+  function falha(m) { aviso.textContent = m; aviso.style.display = "grid"; }
+  if (!window.THREE) { falha("Não foi possível carregar a biblioteca 3D."); return; }
+  var renderer;
+  try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); }
+  catch (e) { falha("Este navegador não abriu o WebGL. Tente abrir em outro navegador."); return; }
+
+  var CASCA = ["stl", "cabeca", "torso"];
+  var CAMADAS = [
+    { id: "stl", nome: "Braços e pernas (modelo original)", cor: 0x9aa0a6, malhas: ["stl"], on: true, casca: true },
+    { id: "cabeca", nome: "Cabeça", cor: 0xe2574c, malhas: ["cabeca"], on: true, casca: true },
+    { id: "torso", nome: "Tronco", cor: 0x3f8fd8, malhas: ["torso"], on: true, casca: true },
+    { id: "tubos", nome: "Tubos do esqueleto", cor: 0xe0218a, malhas: ["tubo_coluna", "tubo_ombro", "tubo_perna_E", "tubo_perna_D"], on: true },
+    { id: "pecas", nome: "Peças de ligação (conceito)", cor: 0xf0b429, malhas: ["quadril", "cruzeta"], on: true },
+    { id: "discos", nome: "Aberturas de corte", cor: 0x2fbf71, malhas: [], on: true }
+  ];
+
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.localClippingEnabled = true;
+  box.appendChild(renderer.domElement);
+  var cena = new THREE.Scene();
+  var cam = new THREE.PerspectiveCamera(28, 1, 10, 12000);
+  var ctl = new THREE.OrbitControls(cam, renderer.domElement);
+  ctl.target.set(0, 683, 0); ctl.enableDamping = true; ctl.dampingFactor = 0.1;
+  ctl.minDistance = 300; ctl.maxDistance = 6000;
+  cena.add(new THREE.HemisphereLight(0xffffff, 0x8a8f96, 0.85));
+  var l1 = new THREE.DirectionalLight(0xffffff, 0.55); l1.position.set(600, 1500, 1400); cena.add(l1);
+  var l2 = new THREE.DirectionalLight(0xffffff, 0.3); l2.position.set(-900, 500, -1000); cena.add(l2);
+
+  var modelo = new THREE.Group(); modelo.position.set(-590, 0, -378); cena.add(modelo);
+  var plano = new THREE.Plane(new THREE.Vector3(0, 0, -1), 340);
+  var grupos = {};
+  CAMADAS.forEach(function (c) { grupos[c.id] = new THREE.Group(); grupos[c.id].visible = c.on; modelo.add(grupos[c.id]); });
+  var matCasca = [];
+
+  function geometria(buf, m) {
+    var q = new Uint16Array(buf, 0, m.v * 3), p = new Float32Array(m.v * 3);
+    for (var i = 0; i < m.v; i++) for (var k = 0; k < 3; k++) p[3 * i + k] = m.lo[k] + q[3 * i + k] / 65535 * (m.hi[k] - m.lo[k]);
+    var idx = new Uint32Array(buf, m.v * 6 + m.pad, m.t * 3);
+    var g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(p, 3));
+    g.setIndex(new THREE.BufferAttribute(idx, 1));
+    g.computeVertexNormals();
+    return g;
+  }
+  function material(c) {
+    var o = { color: c.cor, roughness: 0.62, metalness: 0.05, clippingPlanes: [plano], side: THREE.DoubleSide };
+    if (c.casca) { o.transparent = true; o.opacity = 0.22; o.depthWrite = false; }
+    var m = new THREE.MeshStandardMaterial(o);
+    if (c.casca) matCasca.push(m);
+    return m;
+  }
+
+  fetch("dados/malhas.json").then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (man) {
+    var fila = [];
+    CAMADAS.forEach(function (c) {
+      c.malhas.forEach(function (n) {
+        fila.push(fetch("dados/" + n + ".bin").then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(function (b) {
+          var me = new THREE.Mesh(geometria(b, man[n]), material(c));
+          me.renderOrder = c.casca ? 2 : 1;
+          grupos[c.id].add(me);
+        }));
+      });
+    });
+    var verde = new THREE.MeshBasicMaterial({ color: 0x2fbf71, clippingPlanes: [plano], side: THREE.DoubleSide });
+    man.discos.forEach(function (d) {
+      var t = new THREE.Mesh(new THREE.TorusGeometry(d.R, 2.2, 10, 72), verde);
+      t.position.fromArray(d.centro);
+      t.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3().fromArray(d.normal).normalize());
+      grupos.discos.add(t);
+    });
+    return Promise.all(fila);
+  }).then(function () { aviso.style.display = "none"; })
+    .catch(function () { falha("Não foi possível carregar os modelos."); });
+
+  var lista = document.getElementById("camadas");
+  CAMADAS.forEach(function (c) {
+    var l = document.createElement("label"), i = document.createElement("input"), s = document.createElement("i"), t = document.createElement("span");
+    i.type = "checkbox"; i.checked = c.on;
+    i.addEventListener("change", function () { grupos[c.id].visible = i.checked; });
+    s.style.background = "#" + c.cor.toString(16).padStart(6, "0");
+    t.textContent = c.nome;
+    l.appendChild(i); l.appendChild(s); l.appendChild(t); lista.appendChild(l);
+  });
+  document.getElementById("opac").addEventListener("input", function (e) {
+    var v = e.target.value / 100;
+    matCasca.forEach(function (m) { m.opacity = v; m.transparent = v < 1; m.depthWrite = v >= 1; m.needsUpdate = true; });
+  });
+  document.getElementById("corte").addEventListener("input", function (e) { plano.constant = +e.target.value; });
+
+  var VISTAS = { frente: [0, 683, 3300], lado: [3300, 683, 0], tras: [0, 683, -3300], livre: [2100, 1250, 2300] };
+  var botoes = document.querySelectorAll("#vistas button");
+  function vista(n) {
+    cam.position.fromArray(VISTAS[n]); ctl.target.set(0, 683, 0); ctl.update();
+    botoes.forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.v === n ? "true" : "false"); });
+  }
+  botoes.forEach(function (b) { b.addEventListener("click", function () { vista(b.dataset.v); }); });
+  vista("frente");
+
+  function ajusta() {
+    var w = box.clientWidth, h = box.clientHeight;
+    renderer.setSize(w, h); cam.aspect = w / h; cam.updateProjectionMatrix();
+  }
+  window.addEventListener("resize", ajusta); ajusta();
+  (function ciclo() { requestAnimationFrame(ciclo); ctl.update(); renderer.render(cena, cam); })();
+})();
+</script>
+</body>
+</html>
