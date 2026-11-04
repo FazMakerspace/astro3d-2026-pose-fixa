@@ -117,7 +117,7 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
     <div class="painel">
       <h2>Estado</h2>
       <div class="painel-corpo">
-        <p class="nota">Os tubos estão traçados. As peças de ligação são conceito. Cortes dos braços e pernas, encaixes e fixação na base ainda serão desenhados.</p>
+        <p class="nota">Os tubos estão traçados e os braços e pernas estão cortados nas aberturas do tronco. As peças de ligação são conceito. Prolongamentos, encaixes e fixação na base ainda serão desenhados.</p>
       </div>
     </div>
   </div>
@@ -137,9 +137,13 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
 
   var CASCA = ["stl", "cabeca", "torso"];
   var CAMADAS = [
-    { id: "stl", nome: "Braços e pernas (modelo original)", cor: 0x9aa0a6, malhas: ["stl"], on: true, casca: true },
     { id: "cabeca", nome: "Cabeça", cor: 0xe2574c, malhas: ["cabeca"], on: true, casca: true },
     { id: "torso", nome: "Tronco", cor: 0x3f8fd8, malhas: ["torso"], on: true, casca: true },
+    { id: "braco_E", nome: "Braço esquerdo (corte)", cor: 0xa9a59b, malhas: ["braco_E"], on: true, casca: true },
+    { id: "braco_D", nome: "Braço direito (corte)", cor: 0xa9a59b, malhas: ["braco_D"], on: true, casca: true },
+    { id: "perna_E", nome: "Perna esquerda (corte)", cor: 0x8f9a90, malhas: ["perna_E"], on: true, casca: true },
+    { id: "perna_D", nome: "Perna direita (corte)", cor: 0x8f9a90, malhas: ["perna_D"], on: true, casca: true },
+    { id: "stl", nome: "Modelo original inteiro", cor: 0x9aa0a6, malhas: ["stl"], on: false, casca: true },
     { id: "tubos", nome: "Tubos do esqueleto", cor: 0xe0218a, malhas: ["tubo_coluna", "tubo_ombro", "tubo_perna_E", "tubo_perna_D"], on: true },
     { id: "pecas", nome: "Peças de ligação (conceito)", cor: 0xf0b429, malhas: ["quadril", "cruzeta"], on: true },
     { id: "discos", nome: "Aberturas de corte", cor: 0x2fbf71, malhas: [], on: true }
