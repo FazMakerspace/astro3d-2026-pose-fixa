@@ -70,7 +70,7 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
 <header>
   <h1>Astro — Pose Fixa</h1>
   <p>Estudo da estátua sem articulações (OS-2026-0821 · FAZ Makerspace): cabeça e tronco em cascas modeladas, braços e pernas do modelo original, sobre um esqueleto simplificado. Visualização de estudo, sujeita a ajuste no detalhamento.</p>
-  <p>Revisão 04/11/2026.</p>
+  <p>Revisão 05/11/2026.</p>
 </header>
 
 <div class="principal">
@@ -129,12 +129,12 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
     <div class="painel">
       <h2>Estado</h2>
       <div class="painel-corpo">
-        <p class="nota">Tronco final segmentado e base já na montagem. Coluna inclinada, do centro do quadril ao eixo da cabeça. Ombro no centro das aberturas dos braços. Pescoço mínimo impresso, parafusado na chapa MDF da cabeça. Pernas com canal para o tubo e flange impressa parafusada na base; a área de exclusão acompanha a perna descendo pelo tubo. As peças de ligação são conceito. Prolongamentos, encaixes e fixação na base ainda serão desenhados.</p>
+        <p class="nota">Tronco final segmentado e base já na montagem. Coluna inclinada, do centro do quadril ao eixo da cabeça. Ombro no centro das aberturas dos braços. Pescoço mínimo impresso, parafusado na chapa MDF da cabeça. Pernas com canal para o tubo e flange impressa parafusada na base; a área de exclusão acompanha a perna descendo pelo tubo. Diagonais opcionais, por baixo do tubo do ombro até o encaixe das pernas no quadril, para aliviar a cruzeta se preciso. Um segmento de tubo em cada braço, ligado ao ombro por uma luva. As peças de ligação são conceito. Prolongamentos, encaixes e fixação na base ainda serão desenhados.</p>
       </div>
     </div>
   </div>
 </div>
-<footer>FAZ Makerspace · OS-2026-0821 · estudo de pose fixa · rev. 04/11/2026</footer>
+<footer>FAZ Makerspace · OS-2026-0821 · estudo de pose fixa · rev. 05/11/2026</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -168,10 +168,14 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
     { id: "t_coluna", nome: "Tubo da coluna", cor: 0xe0218a, malhas: ["tubo_coluna"], on: true, reto: true },
     { id: "t_ombro", nome: "Tubo do ombro", cor: 0xc01b9e, malhas: ["tubo_ombro"], on: true, reto: true },
     { id: "t_pernas", nome: "Tubos das pernas", cor: 0xe0218a, malhas: ["tubo_perna_E", "tubo_perna_D"], on: true, reto: true },
+    { id: "t_diag", nome: "Diagonais ombro a pernas (opcionais)", cor: 0x7a3ff2, malhas: ["tubo_diag_E", "tubo_diag_D"], on: true, reto: true },
+    { id: "t_braco", nome: "Segmentos de tubo nos braços", cor: 0xe0218a, malhas: ["tubo_braco_E", "tubo_braco_D"], on: true, reto: true },
+    { id: "luvas", nome: "Luvas do ombro (conceito)", cor: 0xd99a12, malhas: ["luva_ombro_E", "luva_ombro_D"], on: true, reto: true },
     { id: "quadril", nome: "Peça do quadril (conceito)", cor: 0xf0b429, malhas: ["quadril"], on: true, reto: true },
     { id: "cruzeta", nome: "Cruzeta do ombro (conceito)", cor: 0xd99a12, malhas: ["cruzeta"], on: true, reto: true },
     { id: "flanges", nome: "Flanges das pernas (impressas)", cor: 0x19b5a5, malhas: ["flange_E", "flange_D"], on: true, reto: true },
     { id: "exclusao", nome: "Área de exclusão nas pernas", cor: 0xff8a1f, malhas: ["exclusao_E", "exclusao_D"], on: true, reto: true },
+    { id: "excl_braco", nome: "Área de exclusão nos braços", cor: 0xff8a1f, malhas: ["exclusao_braco_E", "exclusao_braco_D"], on: false, reto: true },
     { id: "t_ant", nome: "Coluna e ombro na primeira posição", cor: 0x7b6cf0, malhas: ["coluna_ant", "ombro_ant"], on: false },
     { grupo: "Base" },
     { id: "base_sup", nome: "Disco superior, 15 mm", cor: 0x151515, malhas: ["base_sup"], on: true, reto: true },
