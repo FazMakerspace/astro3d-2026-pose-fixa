@@ -64,13 +64,27 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
 }
 .camadas h3{font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;color:var(--fg2);margin:10px 0 2px;font-weight:600}
 .camadas h3:first-child{margin-top:0}
+.linha-camada{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.linha-camada label{min-width:0}
+.baixar{display:flex;gap:4px;flex:none}
+.baixar a,.lista-arq a{font-family:var(--mono);font-size:.68rem;padding:1px 6px;border-radius:4px;border:1px solid var(--linha);color:var(--tubo);text-decoration:none;white-space:nowrap}
+.baixar a:hover,.lista-arq a:hover{border-color:var(--tubo)}
+.baixar a:focus-visible,.lista-arq a:focus-visible{outline:2px solid var(--junta)}
+.seletor{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:.8rem;color:var(--fg2)}
+.lista-arq{display:grid;gap:7px;margin:10px 0 0;padding:0;list-style:none;font-size:.84rem}
+.lista-arq li{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.lista-arq span{color:var(--fg)}
+.detalhe h3{font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--fg2);margin:14px 0 4px;font-weight:600}
+.detalhe h3:first-child{margin-top:0}
+.detalhe ul{margin:0;padding-left:18px;font-size:.86rem;display:grid;gap:3px}
+.alerta{border-left:3px solid var(--junta);padding:6px 10px;background:var(--bg);font-size:.84rem;margin:10px 0 0}
 </style>
 </head>
 <body>
 <header>
   <h1>Astro — Pose Fixa</h1>
   <p>Estudo da estátua sem articulações (OS-2026-0821 · FAZ Makerspace): cabeça e tronco em cascas modeladas, braços e pernas do modelo original, sobre um esqueleto simplificado. Visualização de estudo, sujeita a ajuste no detalhamento.</p>
-  <p>Revisão 05/11/2026.</p>
+  <p>Revisão 09/11/2026: pernas do Milton com os pés plantados, flanges, espaço de subtração e base MDF fechada.</p>
 </header>
 
 <div class="principal">
@@ -91,6 +105,12 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
     <div class="painel">
       <h2>Camadas</h2>
       <div class="painel-corpo">
+        <div class="seletor">Pernas:
+          <div class="modos" id="modoPernas">
+            <button data-m="milton" aria-pressed="true">Milton (09/11)</button>
+            <button data-m="stl" aria-pressed="false">STL original</button>
+          </div>
+        </div>
         <div class="camadas" id="camadas"></div>
         <div class="controle">
           <label for="opac">Opacidade das cascas</label>
@@ -116,25 +136,55 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
           <dt>Coluna</dt><dd>Ø 1½"</dd>
           <dt>Ombros e pernas</dt><dd>Ø 1"</dd>
           <dt>Casca sobre o tubo</dt><dd>≥ 3 mm</dd>
-          <dt>Base</dt><dd>Ø 880 mm, 2 discos de 15 mm, preta</dd>
+          <dt>Base</dt><dd>Ø 880 mm, 2 discos MDF 15 mm, preta</dd>
+          <dt>Fixação de cada perna</dt><dd>4 M8 × 40 + porca-garra</dd>
         </dl>
       </div>
     </div>
     <div class="painel">
       <h2>Arquivos</h2>
       <div class="painel-corpo">
-        <p class="nota">Equipe do projeto: <a href="https://drive.google.com/drive/folders/1Od6e5ZLAWZ2GPMx5w-6Jo2HveIJu0hHP" target="_blank" rel="noopener">abrir a pasta no Google Drive</a> para baixar o STEP da montagem, os STLs e o desenho da base. É preciso ter acesso à pasta.</p>
+        <p class="nota">Equipe do projeto: <a href="https://drive.google.com/drive/folders/1Od6e5ZLAWZ2GPMx5w-6Jo2HveIJu0hHP" target="_blank" rel="noopener">abrir a pasta no Google Drive</a> para baixar o STEP da montagem e os STLs. Os arquivos da base, das flanges e das pernas do Milton (rev. 09/11) estão em <a id="pasta-rev" href="#" target="_blank" rel="noopener">pose-fixa/atualizacao_2026-11-09_pes_base</a>; os botões ao lado das camadas baixam o arquivo de cada peça. É preciso ter acesso à pasta.</p>
+        <ul class="lista-arq" id="lista-arq"></ul>
+      </div>
+    </div>
+    <div class="painel">
+      <h2>Pés e base · rev. 09/11</h2>
+      <div class="painel-corpo detalhe">
+        <h3>Pernas</h3>
+        <ul>
+          <li>Botas do Milton (BXA_M_002_01, 07/11), com os pés plantados: a sola é plana e apoia no topo da base. O resto da pose é o mesmo do estudo.</li>
+          <li>Já recortadas pelo espaço de subtração. O seletor “STL original” volta às pernas antigas e à área de exclusão anterior.</li>
+        </ul>
+        <h3>Flanges</h3>
+        <ul>
+          <li>Placa Ø96 × 12 com torre e luva inclinada que recebe o tubo de 1" (furo Ø25,8), impressa.</li>
+          <li>4 furos Ø9 a 38 mm do centro, com escareado para M8 cabeça chata. Nesta revisão os furos giraram para a chave entrar por cima, longe da torre.</li>
+        </ul>
+        <h3>Espaço de subtração</h3>
+        <ul>
+          <li>Flange e torre com 2 mm de folga, varridas na direção do tubo até sair por baixo: a perna desce pelo tubo com a flange já parafusada. Inclui o canal Ø29,4 do tubo até o quadril.</li>
+          <li>Mesmo referencial das pernas do Milton (mm, Y para cima, frente em +Z, topo da base em Y 0): é só subtrair, sem mover.</li>
+        </ul>
+        <h3>Base MDF</h3>
+        <ul>
+          <li>Dois discos Ø880 × 15, colados e unidos por 8 parafusos para MDF 4,0 × 25 por baixo.</li>
+          <li>Disco superior: 8 furos Ø9. Disco inferior: 8 furos Ø10,5 com rebaixo Ø25 × 1,5 por baixo para as porcas-garra M8, e os 8 furos de união.</li>
+          <li>Cada flange: 4 parafusos M8 × 40 cabeça chata Allen (DIN 7991) de cima, até a porca-garra. A ponta para 2 mm antes da face de baixo.</li>
+        </ul>
+        <p class="alerta" id="alerta-gap">Em aberto: as botas do Milton terminam na bola do tornozelo, perto de Y 278. Até o disco do quadril, o STL original tinha mais um trecho de perna (de 27 a 88 mm, conforme o lado), e nele o tubo fica à mostra. Esse trecho ainda precisa ser modelado ou trazido do STL.</p>
+        <p class="nota" style="margin-top:8px">Paredes finas, menos de 1,5 mm, só onde o tubo sai pela bola do tornozelo, que já é a abertura de saída. Na perna esquerda há um ponto no vão da sola, escondido sobre a base.</p>
       </div>
     </div>
     <div class="painel">
       <h2>Estado</h2>
       <div class="painel-corpo">
-        <p class="nota">Tronco final segmentado e base já na montagem. Coluna inclinada, do centro do quadril ao eixo da cabeça. Ombro no centro das aberturas dos braços. Pescoço mínimo impresso, parafusado na chapa MDF da cabeça. Pernas com canal para o tubo e flange impressa parafusada na base; a área de exclusão acompanha a perna descendo pelo tubo. Suporte diagonal extra, opcional: tubos e abraçadeiras por baixo do tubo do ombro até o quadril, para aliviar a cruzeta se preciso. Em cada braço, barra de aço Ø12,7 dobrada, sem solda, do cotovelo até dentro do tubo do ombro, com bucha impressa, trava M5 perto da ponta e cavidade no braço para resina. As peças de ligação são conceito. Prolongamentos, encaixes e fixação na base ainda serão desenhados.</p>
+        <p class="nota">Tronco final segmentado e base já na montagem. Coluna inclinada, do centro do quadril ao eixo da cabeça. Ombro no centro das aberturas dos braços. Pescoço mínimo impresso, parafusado na chapa MDF da cabeça. Pernas do Milton com os pés plantados, recortadas pelo espaço de subtração das flanges (canal do tubo e curso de instalação). Flange impressa presa à base MDF por 4 M8 com porca-garra. Base fechada, com DXF dos dois discos. Suporte diagonal extra, opcional: tubos e abraçadeiras por baixo do tubo do ombro até o quadril, para aliviar a cruzeta se preciso. Em cada braço, barra de aço Ø12,7 dobrada, sem solda, do cotovelo até dentro do tubo do ombro, com bucha impressa, trava M5 perto da ponta e cavidade no braço para resina. As peças de ligação são conceito. Prolongamentos e encaixes do tronco ainda serão desenhados.</p>
       </div>
     </div>
   </div>
 </div>
-<footer>FAZ Makerspace · OS-2026-0821 · estudo de pose fixa · rev. 05/11/2026</footer>
+<footer>FAZ Makerspace · OS-2026-0821 · estudo de pose fixa · rev. 09/11/2026</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -147,6 +197,8 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
   try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); }
   catch (e) { falha("Este navegador não abriu o WebGL. Tente abrir em outro navegador."); return; }
 
+  // Links de download no Google Drive (pasta pose-fixa/atualizacao_2026-11-09_pes_base), gerados por pernas-milton/m11_links.py
+  var ARQ = /*ARQ*/{"perna_E": [{"rot": "STEP", "url": "https://drive.google.com/file/d/1v-lQDO1YRICj87Rip8FbHRjy860huU_G/view", "nome": "Perna_E_Milton_recortada.step"}], "perna_D": [{"rot": "STEP", "url": "https://drive.google.com/file/d/1KkLxmqyua-isic7ovtJvuiAOZVDJiv5z/view", "nome": "Perna_D_Milton_recortada.step"}], "flange_E": [{"rot": "E", "url": "https://drive.google.com/file/d/1UYx-kLVhrqkFeozpOm7RiugqxtmBzO9y/view", "nome": "Flange_perna_E.step"}], "flange_D": [{"rot": "D", "url": "https://drive.google.com/file/d/19IP4zxYVXOqfakq2XyD_N4RT9gW6De_2/view", "nome": "Flange_perna_D.step"}], "subtracao_E": [{"rot": "E", "url": "https://drive.google.com/file/d/1ogLobdT_lB3HDyvioW3cP6jpNVHJCmq7/view", "nome": "Subtracao_flange_perna_E.step"}], "subtracao_D": [{"rot": "D", "url": "https://drive.google.com/file/d/14n5fF5UpjTNWO7-MUTdF4NaWb9V6NDOA/view", "nome": "Subtracao_flange_perna_D.step"}], "dxf_sup": [{"rot": "DXF", "url": "https://drive.google.com/file/d/1B14U-O-KzF8GUINMs-pcdsC-l0oMQypz/view", "nome": "base_disco_superior_v08.dxf"}], "dxf_inf": [{"rot": "DXF", "url": "https://drive.google.com/file/d/14Msah2FQqmzbtZlZnDayLpUw471ErBh6/view", "nome": "base_disco_inferior_v08.dxf"}], "_pasta": "https://drive.google.com/drive/folders/1DhkMXcMDYDP9ccJYxISBVpmK7S6MIED8", "_lista": [{"t": "Desenho da base (cotas, furação, material)", "l": [{"rot": "PDF", "url": "https://drive.google.com/file/d/1nIomrTnC-PhDPO5hTiUJ89XfVSAeKK3m/view", "nome": "base_mdf_desenho_v08.pdf"}, {"rot": "PNG", "url": "https://drive.google.com/file/d/17jt2YWKE-LWe4QjACOzREcXQc18dA4_l/view", "nome": "base_mdf_desenho_v08.png"}]}, {"t": "Disco superior", "l": [{"rot": "DXF", "url": "https://drive.google.com/file/d/1B14U-O-KzF8GUINMs-pcdsC-l0oMQypz/view", "nome": "base_disco_superior_v08.dxf"}, {"rot": "STEP", "url": "https://drive.google.com/file/d/1qrQkRpbP44bVQlWJfKrYl6LTbWd62kMi/view", "nome": "Base_disco_superior_15mm.step"}]}, {"t": "Disco inferior", "l": [{"rot": "DXF", "url": "https://drive.google.com/file/d/14Msah2FQqmzbtZlZnDayLpUw471ErBh6/view", "nome": "base_disco_inferior_v08.dxf"}, {"rot": "STEP", "url": "https://drive.google.com/file/d/1J8-2JUwXXbCcZvWsv3XJboYutTpRcRtl/view", "nome": "Base_disco_inferior_15mm.step"}]}, {"t": "Flange da perna esquerda", "l": [{"rot": "STEP", "url": "https://drive.google.com/file/d/1UYx-kLVhrqkFeozpOm7RiugqxtmBzO9y/view", "nome": "Flange_perna_E.step"}, {"rot": "STL", "url": "https://drive.google.com/file/d/1LW5z0edhorW1tYdCnd0_tS2ciQ9rlLkz/view", "nome": "Flange_perna_E.stl"}]}, {"t": "Flange da perna direita", "l": [{"rot": "STEP", "url": "https://drive.google.com/file/d/19IP4zxYVXOqfakq2XyD_N4RT9gW6De_2/view", "nome": "Flange_perna_D.step"}, {"rot": "STL", "url": "https://drive.google.com/file/d/1uou3SGKa-fyTgY7SeB0tUsN7rChlHHxn/view", "nome": "Flange_perna_D.stl"}]}, {"t": "Subtração, perna esquerda", "l": [{"rot": "STEP", "url": "https://drive.google.com/file/d/1ogLobdT_lB3HDyvioW3cP6jpNVHJCmq7/view", "nome": "Subtracao_flange_perna_E.step"}, {"rot": "STL", "url": "https://drive.google.com/file/d/1PPg7ajh4xFp9mgM1hf_TjINfvwUHw6Lc/view", "nome": "Subtracao_flange_perna_E.stl"}]}, {"t": "Subtração, perna direita", "l": [{"rot": "STEP", "url": "https://drive.google.com/file/d/14n5fF5UpjTNWO7-MUTdF4NaWb9V6NDOA/view", "nome": "Subtracao_flange_perna_D.step"}, {"rot": "STL", "url": "https://drive.google.com/file/d/1c8Nk-uT1L0fEVT5km5xAjqhQjom63NBS/view", "nome": "Subtracao_flange_perna_D.stl"}]}, {"t": "Perna esquerda do Milton já recortada", "l": [{"rot": "STEP", "url": "https://drive.google.com/file/d/1v-lQDO1YRICj87Rip8FbHRjy860huU_G/view", "nome": "Perna_E_Milton_recortada.step"}, {"rot": "STL", "url": "https://drive.google.com/file/d/1-5nsC2hsAIqGhPJmPzPdWfCAKiE9R6F0/view", "nome": "Perna_E_Milton_recortada.stl"}]}, {"t": "Perna direita do Milton já recortada", "l": [{"rot": "STEP", "url": "https://drive.google.com/file/d/1KkLxmqyua-isic7ovtJvuiAOZVDJiv5z/view", "nome": "Perna_D_Milton_recortada.step"}, {"rot": "STL", "url": "https://drive.google.com/file/d/1pqTTJtUC9HpcGHokPyhgkR7ue6FeQlqJ/view", "nome": "Perna_D_Milton_recortada.stl"}]}, {"t": "Conjunto base + flanges + tubos + parafusos + pernas", "l": [{"rot": "STEP", "url": "https://drive.google.com/file/d/11z-sj4D2EAXAUfF5yfAWLf3VufIvcKgG/view", "nome": "conjunto_base_pes.step"}]}, {"t": "Cortes das pernas pelo eixo do tubo", "l": [{"rot": "PNG", "url": "https://drive.google.com/file/d/1TZ63j4C-XXgsKw67ydWGuAH5NVrPIqgT/view", "nome": "cortes_pernas_milton.png"}]}]}/*FIM_ARQ*/;
   var CAMADAS = [
     { grupo: "Cabeça" },
     { id: "casca", nome: "Casca", cor: 0xe2574c, malhas: ["casca"], on: true, casca: true },
@@ -162,27 +214,30 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
     { grupo: "Braços e pernas" },
     { id: "braco_E", nome: "Braço esquerdo", cor: 0xa9a59b, malhas: ["braco_E"], on: true, casca: true },
     { id: "braco_D", nome: "Braço direito", cor: 0xa9a59b, malhas: ["braco_D"], on: true, casca: true },
-    { id: "perna_E", nome: "Perna esquerda", cor: 0x8f9a90, malhas: ["perna_E"], on: true, casca: true },
-    { id: "perna_D", nome: "Perna direita", cor: 0x8f9a90, malhas: ["perna_D"], on: true, casca: true },
+    { id: "perna_E", nome: "Perna esquerda", cor: 0x8f9a90, malhas: ["perna_E_milton"], stl: ["perna_E"], on: true, casca: true, dl: ["perna_E"] },
+    { id: "perna_D", nome: "Perna direita", cor: 0x8f9a90, malhas: ["perna_D_milton"], stl: ["perna_D"], on: true, casca: true, dl: ["perna_D"] },
     { grupo: "Esqueleto" },
     { id: "t_coluna", nome: "Tubo da coluna", cor: 0xe0218a, malhas: ["tubo_coluna"], on: true, reto: true },
     { id: "t_ombro", nome: "Tubo do ombro", cor: 0xc01b9e, malhas: ["tubo_ombro"], on: true, reto: true },
     { id: "t_pernas", nome: "Tubos das pernas", cor: 0xe0218a, malhas: ["tubo_perna_E", "tubo_perna_D"], on: true, reto: true },
     { id: "t_braco", nome: "Barras dos braços (aço Ø12,7, dobradas)", cor: 0x2ea8e0, malhas: ["barra_braco_E", "barra_braco_D"], on: true, reto: true },
-    { id: "buchas", nome: "Buchas das barras (impressas)", cor: 0x8bd17c, malhas: ["bucha_E", "bucha_D"], on: true, reto: true },
+    { id: "luva_tubo", nome: "Luvas do tubo (PETG, em C)", cor: 0xf2a33c, malhas: ["luva_tubo_E", "luva_tubo_D"], on: true, reto: true },
+    { id: "luva_barra", nome: "Luvas da barra (PETG, com dente)", cor: 0x8bd17c, malhas: ["luva_barra_E", "luva_barra_D"], on: true, reto: true },
     { id: "parafusos", nome: "Parafusos de trava M5", cor: 0x444444, malhas: ["parafuso_E", "parafuso_D"], on: true, reto: true },
     { id: "quadril", nome: "Peça do quadril (conceito)", cor: 0xf0b429, malhas: ["quadril"], on: true, reto: true },
     { id: "cruzeta", nome: "Cruzeta do ombro (conceito)", cor: 0xd99a12, malhas: ["cruzeta"], on: true, reto: true },
-    { id: "flanges", nome: "Flanges das pernas (impressas)", cor: 0x19b5a5, malhas: ["flange_E", "flange_D"], on: true, reto: true },
-    { id: "exclusao", nome: "Área de exclusão nas pernas", cor: 0xff8a1f, malhas: ["exclusao_E", "exclusao_D"], on: true, reto: true },
+    { id: "flanges", nome: "Flanges das pernas (impressas)", cor: 0x19b5a5, malhas: ["flange_E", "flange_D"], on: true, reto: true, dl: ["flange_E", "flange_D"] },
+    { id: "exclusao", nome: "Espaço de subtração das flanges", cor: 0xff8a1f, malhas: ["subtracao_E", "subtracao_D"], stl: ["exclusao_E", "exclusao_D"], on: true, reto: true, dl: ["subtracao_E", "subtracao_D"] },
+    { id: "paraf_pe", nome: "Parafusos M8 × 40 cabeça chata (8)", cor: 0x444444, malhas: ["parafusos_pe_E", "parafusos_pe_D"], on: true, reto: true },
     { id: "excl_braco", nome: "Cavidade da barra nos braços", cor: 0xff8a1f, malhas: ["exclusao_braco_E", "exclusao_braco_D"], on: false, reto: true },
     { id: "t_ant", nome: "Coluna e ombro na primeira posição", cor: 0x7b6cf0, malhas: ["coluna_ant", "ombro_ant"], on: false },
     { grupo: "Suporte diagonal extra (opcional)" },
     { id: "t_diag", nome: "Tubos diagonais", cor: 0x7a3ff2, malhas: ["tubo_diag_E", "tubo_diag_D"], on: true, reto: true },
     { id: "luvas", nome: "Abraçadeiras no tubo do ombro", cor: 0xd99a12, malhas: ["luva_ombro_E", "luva_ombro_D"], on: true, reto: true },
     { grupo: "Base" },
-    { id: "base_sup", nome: "Disco superior, 15 mm", cor: 0x151515, malhas: ["base_sup"], on: true, reto: true },
-    { id: "base_inf", nome: "Disco inferior, 15 mm", cor: 0x242424, malhas: ["base_inf"], on: true, reto: true },
+    { id: "base_sup", nome: "Disco superior, MDF 15 mm", cor: 0x151515, malhas: ["base_sup"], on: true, reto: true, dl: ["dxf_sup"] },
+    { id: "base_inf", nome: "Disco inferior, MDF 15 mm", cor: 0x242424, malhas: ["base_inf"], on: true, reto: true, dl: ["dxf_inf"] },
+    { id: "porcas", nome: "Porcas-garra M8 (8, por baixo)", cor: 0x9a9a9a, malhas: ["porcas_garra_E", "porcas_garra_D"], on: true, reto: true },
     { grupo: "Referências" },
     { id: "stl", nome: "Modelo original inteiro", cor: 0x9aa0a6, malhas: ["stl"], on: false, casca: true },
     { id: "discos", nome: "Aberturas de corte", cor: 0x2fbf71, malhas: [], on: true }
@@ -226,14 +281,31 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
     return m;
   }
 
+  // Pernas: modelo do Milton (padrão) ou STL original. Camadas com "stl" têm as duas versões, cada uma num subgrupo.
+  var modoPernas = "milton", variantes = [];
+  function aplicaModo() {
+    variantes.forEach(function (v) { v.milton.visible = modoPernas === "milton"; v.stl.visible = modoPernas === "stl"; });
+    document.querySelectorAll("#modoPernas button").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.m === modoPernas ? "true" : "false"); });
+  }
+  PECAS.forEach(function (c) {
+    if (!c.stl) return;
+    c.sub = { milton: new THREE.Group(), stl: new THREE.Group() };
+    grupos[c.id].add(c.sub.milton); grupos[c.id].add(c.sub.stl); variantes.push(c.sub);
+  });
+  aplicaModo();
+  document.querySelectorAll("#modoPernas button").forEach(function (b) { b.addEventListener("click", function () { modoPernas = b.dataset.m; aplicaModo(); }); });
+
   fetch("dados/malhas.json").then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (man) {
     var fila = [];
     PECAS.forEach(function (c) {
-      c.malhas.forEach(function (n) {
+      var lista = c.malhas.map(function (n) { return [n, c.sub ? c.sub.milton : grupos[c.id]]; });
+      if (c.stl) c.stl.forEach(function (n) { lista.push([n, c.sub.stl]); });
+      lista.forEach(function (par) {
+        var n = par[0];
         fila.push(fetch("dados/" + n + ".bin").then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(function (b) {
           var me = new THREE.Mesh(geometria(b, man[n]), material(c));
           me.renderOrder = c.casca ? 2 : 1;
-          grupos[c.id].add(me);
+          par[1].add(me);
         }));
       });
     });
@@ -256,7 +328,26 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
     i.addEventListener("change", function () { grupos[c.id].visible = i.checked; });
     s.style.background = "#" + c.cor.toString(16).padStart(6, "0");
     t.textContent = c.nome;
-    l.appendChild(i); l.appendChild(s); l.appendChild(t); lista.appendChild(l);
+    l.appendChild(i); l.appendChild(s); l.appendChild(t);
+    var linha = document.createElement("div"); linha.className = "linha-camada"; linha.appendChild(l);
+    if (c.dl) {
+      var d = document.createElement("span"); d.className = "baixar";
+      c.dl.forEach(function (k) {
+        (ARQ[k] || []).forEach(function (a) {
+          var x = document.createElement("a"); x.href = a.url; x.target = "_blank"; x.rel = "noopener"; x.textContent = a.rot; x.title = "Baixar " + a.nome + " (Google Drive)";
+          d.appendChild(x);
+        });
+      });
+      linha.appendChild(d);
+    }
+    lista.appendChild(linha);
+  });
+  if (ARQ._pasta) document.getElementById("pasta-rev").href = ARQ._pasta;
+  (ARQ._lista || []).forEach(function (g) {
+    var li = document.createElement("li"), s = document.createElement("span"), d = document.createElement("span");
+    s.textContent = g.t; d.className = "baixar";
+    g.l.forEach(function (a) { var x = document.createElement("a"); x.href = a.url; x.target = "_blank"; x.rel = "noopener"; x.textContent = a.rot; x.title = "Baixar " + a.nome + " (Google Drive)"; d.appendChild(x); });
+    li.appendChild(s); li.appendChild(d); document.getElementById("lista-arq").appendChild(li);
   });
   document.getElementById("opac").addEventListener("input", function (e) {
     var v = e.target.value / 100;
