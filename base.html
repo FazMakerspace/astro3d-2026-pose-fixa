@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
@@ -89,7 +89,7 @@ svg text{font-family:var(--mono)}
 <body>
 <header>
   <h1>Astro — Base MDF</h1>
-  <p>Desenho da base da pose fixa, rev. <span id="rev">v09</span>: disco superior Ø 880 × 18, anel inferior Ø 880 / Ø 600 × 18 e uma barra central de apoio dentro do anel, entre os pés. Posição dos pés e furos-guia tirados da montagem da pose fixa (pernas e flange nova de 11/11). <a href="index.html">← Voltar ao visualizador 3D</a></p>
+  <p>Desenho da base da pose fixa, rev. <span id="rev">v09</span>: disco superior Ø 830 × 18, anel inferior Ø 830 / Ø 600 × 18 e uma barra central de apoio dentro do anel, entre os pés. Posição dos pés e furos-guia tirados da montagem da pose fixa (pernas e flange nova de 11/11). <a href="index.html">← Voltar ao visualizador 3D</a></p>
 </header>
 
 <div class="principal">
@@ -150,6 +150,7 @@ svg text{font-family:var(--mono)}
           <li><span>Barra central (na posição de montagem)</span><a href="dados/base/base_v09_barras.dxf" download>DXF</a></li>
         </ul>
         <p class="nota" style="margin-top:10px">Linhas <b>pretas</b> (camada CORTE) = corte. Linhas <b style="color:var(--marca)">vermelhas</b> (camada MARCACAO_PES) = marcação dos pés e das flanges, não cortar. Na tela, o preto aparece claro no tema escuro.</p>
+        <p class="nota" style="margin-top:8px">Os mesmos arquivos, com um LEIAME, estão no Drive da OS em <a href="https://drive.google.com/drive/folders/1_USA2ipsuCBoRm28-9035II3Kq1vx_P2" target="_blank" rel="noopener" style="color:var(--tubo)">pose-fixa/atualizacao_2026-11-12_base_v09</a> (é preciso ter acesso à pasta).</p>
       </div>
     </div>
   </div>
@@ -179,7 +180,7 @@ const poly=(pts,a,pai)=>el('polygon',Object.assign({points:pts.map(P).join(' ')}
 const CAMADAS=[
   {id:'mdf',nome:'Disco superior (área)',cor:'var(--mdf)',area:true,on:true},
   {id:'corte',nome:'Corte do disco superior (preto)',cor:'var(--corte)',on:true},
-  {id:'anel',nome:'Anel inferior Ø 880 / 600',cor:'var(--anel)',on:true},
+  {id:'anel',nome:'Anel inferior Ø 830 / 600',cor:'var(--anel)',on:true},
   {id:'barras',nome:'Barra central de apoio',cor:'var(--barra)',on:true},
   {id:'pes',nome:'Pés na pose fixa (vermelho)',cor:'var(--marca)',on:true},
   {id:'flanges',nome:'Chapa das flanges (vermelho)',cor:'var(--flange)',on:true},
@@ -225,7 +226,7 @@ function monta(){
   el('path',{d:`M${-R-20},0H${R+20}M0,${-R-20}V${R+20}`,stroke:'var(--fg2)','stroke-width':.7,'vector-effect':'non-scaling-stroke','stroke-dasharray':'14 4 2 4'},G.cotas);
   // cota do diâmetro
   el('path',{d:`M${-R},${R+28}H${R}M${-R},${R+20}v16M${R},${R+20}v16`,stroke:'var(--fg2)','stroke-width':1,'vector-effect':'non-scaling-stroke'},G.cotas);
-  el('text',{x:0,y:R+24,'text-anchor':'middle','font-size':13,fill:'var(--fg2)'},G.cotas).textContent='Ø 880';
+  el('text',{x:0,y:R+24,'text-anchor':'middle','font-size':13,fill:'var(--fg2)'},G.cotas).textContent='Ø '+fmt(2*R);
   el('text',{x:Ri*0.70,y:Ri*0.70+16,'font-size':12,fill:'var(--anel)'},G.anel).textContent='Ø 600';
   aplicaCamadas(); aplicaVB();
 }
@@ -286,7 +287,7 @@ fetch('dados/base/base_v09.json').then(r=>r.json()).then(j=>{
   D=j; document.getElementById('rev').textContent=D.rev; document.getElementById('rev2').textContent=D.rev;
   monta(); folha('montagem');
   const pc=document.getElementById('pecas'); const linhas=[
-    ['Disco superior','Ø 880 × 18'],['Furos-guia','8 × Ø 5'],['Anel inferior','Ø 880 / Ø 600 × 18'],
+    ['Disco superior',`Ø ${fmt(2*D.r_disco)} × 18`],['Furos-guia','8 × Ø 5'],['Anel inferior',`Ø ${fmt(2*D.r_disco)} / Ø ${fmt(2*D.r_anel_int)} × 18`],
     ...D.barras.map(b=>[b.nome,`${b.largura} × ${fmt(b.comprimento)} × 18${b.alivios.length?` · ${b.alivios.length} alívios Ø ${2*D.r_alivio}`:''}`]),
     ['Altura total da base','36 mm']];
   pc.innerHTML=linhas.map(([a,b])=>`<dt>${a}</dt><dd>${b}</dd>`).join('');
