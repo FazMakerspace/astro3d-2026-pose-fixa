@@ -91,8 +91,8 @@ svg text{font-family:var(--mono)}
   <h1>Astro — Base MDF</h1>
   <p>Desenho da base da pose fixa, rev. <span id="rev">—</span>: <span id="resumo">—</span> Posição dos pés e furos-guia tirados da montagem da pose fixa (pernas e flange nova de 11/11). <a href="index.html">← Voltar ao visualizador 3D</a></p>
   <div class="modos" id="versoes" style="margin-top:8px">
-    <button data-v="v10" aria-pressed="true">v10 · Ø 660 (chapa 1300 × 900)</button>
-    <button data-v="v09" aria-pressed="false">v09 · Ø 830</button>
+    <button data-v="v09" aria-pressed="true">v09 · Ø 830 · definitiva</button>
+    <button data-v="v10" aria-pressed="false">v10 · Ø 660 · teste interno</button>
   </div>
 </header>
 
@@ -289,14 +289,14 @@ const VERSOES={
   v10:{json:'dados/base_v10/base_v10.json',pre:'dados/base_v10/base_v10_',script:'m45_base_v10_660.py + m45b_chapa_1300x900.py',seta:[245,305],
     drive:['https://drive.google.com/drive/folders/1SzH0MiOac8v9j9hfkSDRGSlGACw-T0wd','pose-fixa/atualizacao_2026-11-14_base_v10_660'],
     extra:[['Chapa 1300 × 900 inteira: disco + anel + barra no miolo do anel (contorno da chapa em cinza, não cortar)','dados/base_v10/base_v10_chapa_1300x900.dxf','DXF'],['Figura do encaixe na chapa','dados/base_v10/m45b_chapa_1300x900.png','PNG']],
-    nota:'Cabe numa chapa 1300 × 900: dois discos na diagonal dão no máximo Ø 670 (Ø 662 com 5 mm de margem e de vão); Ø 700 não cabe. O pé esquerdo fica a 16,7 mm da borda. Anel com Ø 520 por dentro para ter faixa de 70 mm.'},
+    nota:'SÓ PARA MONTAGEM INTERNA DE TESTE (MDF mais fino, sem acabamento); a base definitiva é a v09 Ø 830. Cabe numa chapa 1300 × 900: dois discos na diagonal dão no máximo Ø 670 (Ø 662 com 5 mm de margem e de vão); Ø 700 não cabe. O pé esquerdo fica a 16,7 mm da borda. Anel com Ø 520 por dentro para ter faixa de 70 mm.'},
   v09:{json:'dados/base/base_v09.json',pre:'dados/base/base_v09_',script:'m43_base_v09.py',seta:[330,400],
-    drive:['https://drive.google.com/drive/folders/1_USA2ipsuCBoRm28-9035II3Kq1vx_P2','pose-fixa/atualizacao_2026-11-12_base_v09'],extra:[],nota:''},
+    drive:['https://drive.google.com/drive/folders/1_USA2ipsuCBoRm28-9035II3Kq1vx_P2','pose-fixa/atualizacao_2026-11-12_base_v09'],extra:[],nota:'Base definitiva.'},
 };
-let V=VERSOES.v10;
+let V=VERSOES.v09;
 function carrega(v){
   V=VERSOES[v]; document.querySelectorAll('#versoes button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
-  try{history.replaceState(null,'',v==='v10'?location.pathname:'?v='+v)}catch(e){}
+  try{history.replaceState(null,'',v==='v09'?location.pathname:'?v='+v)}catch(e){}
   fetch(V.json).then(r=>r.json()).then(j=>{
   D=j; document.getElementById('rev').textContent=D.rev; document.getElementById('rev2').textContent=D.rev; document.getElementById('script').textContent=V.script;
   document.getElementById('resumo').textContent=`disco superior Ø ${fmt(2*D.r_disco)} × 18, anel inferior Ø ${fmt(2*D.r_disco)} / Ø ${fmt(2*D.r_anel_int)} × 18 e uma barra central de apoio dentro do anel, entre os pés. ${V.nota}`;
@@ -322,7 +322,7 @@ function carrega(v){
 }).catch(e=>{document.getElementById('vista').insertAdjacentHTML('beforeend',`<p style="position:absolute;inset:0;display:grid;place-items:center;color:var(--fg2)">Erro ao carregar os dados: ${e}</p>`)});
 }
 document.querySelectorAll('#versoes button').forEach(b=>b.addEventListener('click',()=>carrega(b.dataset.v)));
-carrega(new URLSearchParams(location.search).get('v')==='v09'?'v09':'v10');
+carrega(new URLSearchParams(location.search).get('v')==='v10'?'v10':'v09');
 </script>
 </body>
 </html>
