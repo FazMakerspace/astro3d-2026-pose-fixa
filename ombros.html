@@ -143,10 +143,10 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
   var CAMADAS = [
     { id: "tubo", nome: "Tubo do ombro (alumínio 1\" × 1/8\")", cor: 0xc01b9e, malhas: ["tubo_ombro"], on: true, transp: true },
     { id: "disco", nome: "Discos de corte das aberturas dos braços", cor: 0x2fbf71, malhas: ["disco_E", "disco_D"], on: true, transp: true, disco: true },
-    { id: "luva", nome: "Luvas dos ombros E e D (PETG, rev. 4 com aba)", cor: 0x3cae4f, malhas: ["luva_E", "luva_D"], on: true },
+    { id: "luva", nome: "Luvas dos ombros E e D (PETG, rev. 5: aba com entalhe)", cor: 0x3cae4f, malhas: ["luva_E", "luva_D"], on: true },
     { id: "barra", nome: "Pinos de 1/2\" (barras de aço Ø 12,7)", cor: 0x2ea8e0, malhas: ["barra_E", "barra_D"], on: true },
     { id: "braco", nome: "Braços: trecho de 100 mm (corte ortogonal ao pino)", cor: 0xa9a59b, malhas: ["braco_E", "braco_D"], on: true, transp: true },
-    { id: "anel", nome: "Anéis do ombro E e D (PETG, até o disco de corte)", cor: 0xf2a33c, malhas: ["anel_E", "anel_D"], on: true, transp: true }
+    { id: "anel", nome: "Anéis do ombro E e D (PETG, até o disco, com dente)", cor: 0xf2a33c, malhas: ["anel_E", "anel_D"], on: true, transp: true }
   ];
   var cssCor = function (c) { return "#" + c.toString(16).padStart(6, "0"); };
   var porMalha = {}; CAMADAS.forEach(function (c) { c.malhas.forEach(function (m) { porMalha[m] = c; }); });
@@ -261,6 +261,7 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
       ["Furos de trava (da ponta)", "12 e 42 mm"],
       ["Anel (da ponta da barra)", "4 mm até o disco de corte"],
       ["Aba do anel", "R 28 (15,3 além do tubo) × 5"],
+      ["Alinhamento", "dente do anel (3,0) no entalhe da aba da luva (3,4), atrás"],
       ["Disco de corte (raio)", "43,5 mm"],
       ["Trecho do braço", MAN.trecho_braco_mm + " mm, do centro do disco para fora"]
     ];
