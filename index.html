@@ -139,7 +139,7 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
           <dt>Tubo perna esquerda</dt><dd>457 mm</dd>
           <dt>Tubo perna direita</dt><dd>451 mm</dd>
           <dt>Tubo do ombro</dt><dd>346 mm</dd>
-          <dt>Tubo da coluna (1½" × 3/16")</dt><dd>320 mm</dd>
+          <dt>Tubo da coluna (1½" × 3/16")</dt><dd>405 mm (140 acima do ombro)</dd>
           <dt>Casca sobre o tubo</dt><dd>≥ 3 mm</dd>
           <dt>Base</dt><dd><a href="base.html" style="color:var(--tubo)">v09 Ø 830 (definitiva), disco + anel MDF 18</a></dd>
           <dt>Fixação de cada perna</dt><dd>4 M8 × 40 + porca-garra</dd>
@@ -184,7 +184,7 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
     <div class="painel">
       <h2>Estado</h2>
       <div class="painel-corpo">
-        <p class="nota">Tronco final segmentado e base já na montagem. Coluna inclinada, do centro do quadril ao eixo da cabeça. Ombro no centro das aberturas dos braços. Pescoço mínimo impresso, parafusado na chapa MDF da cabeça. Pernas do Milton com os pés plantados: bota em casca de 3 mm aberta embaixo, sola com furo para a flange e joelho-coxa com o canal do tubo. Flange impressa, com nervuras, apoiada na base MDF e presa por 4 M8 com porca-garra. Base v09 (12/11): disco + anel MDF 18 e barra central, com DXF de corte na página Desenho da base. Suporte diagonal extra, opcional: tubos e abraçadeiras por baixo do tubo do ombro até o quadril, para aliviar a cruzeta se preciso. Em cada braço, barra de aço Ø12,7 dobrada, sem solda, do cotovelo até dentro do tubo do ombro, com bucha impressa, trava M5 perto da ponta e cavidade no braço para resina. As peças de ligação são conceito. Prolongamentos e encaixes do tronco ainda serão desenhados.</p>
+        <p class="nota">Tronco final segmentado e base já na montagem. Coluna inclinada, do centro do quadril ao eixo da cabeça. Ombro no centro das aberturas dos braços. Pescoço final (16/11), em 2 peças impressas. Embaixo, um disco de 15 mm sob a chapa MDF da cabeça, preso por 8 M6 com porca embutida. Em cima, o pé Ø139 encaixa na abertura Ø140, vai colado e preso com 6 parafusos 3,5 × 20, e leva a luva de 80 mm no tubo com 2 furos M8 de trava da altura. O tubo da coluna sobe 140 mm acima do ombro e entra 67 mm na cabeça. Pernas do Milton com os pés plantados: bota em casca de 3 mm aberta embaixo, sola com furo para a flange e joelho-coxa com o canal do tubo. Flange impressa, com nervuras, apoiada na base MDF e presa por 4 M8 com porca-garra. Base v09 (12/11): disco + anel MDF 18 e barra central, com DXF de corte na página Desenho da base. Suporte diagonal extra, opcional: tubos e abraçadeiras por baixo do tubo do ombro até o quadril, para aliviar a cruzeta se preciso. Em cada braço, barra de aço Ø12,7 dobrada, sem solda, do cotovelo até dentro do tubo do ombro, com bucha impressa, trava M5 perto da ponta e cavidade no braço para resina. As peças de ligação são conceito. Prolongamentos e encaixes do tronco ainda serão desenhados.</p>
       </div>
     </div>
   </div>
@@ -211,8 +211,10 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
     { id: "orelhas", nome: "Orelhas", cor: 0xe98a7f, malhas: ["orelhas"], on: true, casca: true },
     { id: "antenas", nome: "Antenas e pinos", cor: 0xb5362c, malhas: ["antenas"], on: true, casca: true },
     { grupo: "Pescoço" },
-    { id: "pescoco", nome: "Pescoço impresso (mínimo)", cor: 0xf2811d, malhas: ["pescoco"], on: true, reto: true },
-    { id: "placa_a", nome: "Chapa MDF da cabeça (placa A)", cor: 0xc49a6c, malhas: ["placa_a"], on: true, reto: true },
+    { id: "pesc_inf", nome: "Pescoço final, parte de baixo (disco 15 mm, 8 porcas M6)", cor: 0xf2811d, malhas: ["pescoco_final_inf"], on: true, reto: true },
+    { id: "pesc_sup", nome: "Pescoço final, parte de cima (pé Ø139 + luva 80 mm)", cor: 0x2a7de1, malhas: ["pescoco_final_sup"], on: true, reto: true },
+    { id: "placa_a", nome: "Chapa MDF da cabeça (placa A, furos M6)", cor: 0xc49a6c, malhas: ["placa_a_m6"], on: true, reto: true },
+    { id: "pescoco", nome: "Pescoço mínimo de 04/11 (substituído)", cor: 0x9a9a9a, malhas: ["pescoco"], on: false, reto: true },
     { grupo: "Tronco" },
     { id: "torso_E", nome: "Metade esquerda (5 segmentos)", cor: 0x3f8fd8, malhas: ["torso_E"], on: true, casca: true },
     { id: "torso_D", nome: "Metade direita (5 segmentos)", cor: 0x2f78bd, malhas: ["torso_D"], on: true, casca: true },
@@ -224,7 +226,7 @@ footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)
     { id: "seg_D", nome: "Segmento do quadril direito (cilindro R35 × 20, 5 mm fora + 15 mm dentro)", cor: 0x7ed957, malhas: ["segmento_quadril_D"], on: true, reto: true },
     { id: "interf_D", nome: "Parte retirada: além do disco do quadril (57 cm³)", cor: 0xff0000, malhas: ["interf_D_quadril"], on: false },
     { grupo: "Esqueleto" },
-    { id: "t_coluna", nome: "Tubo da coluna", cor: 0xe0218a, malhas: ["tubo_coluna"], on: true, reto: true },
+    { id: "t_coluna", nome: "Tubo da coluna", cor: 0xe0218a, malhas: ["tubo_coluna_real"], on: true, reto: true },
     { id: "t_ombro", nome: "Tubo do ombro", cor: 0xc01b9e, malhas: ["tubo_ombro"], on: true, reto: true },
     { id: "t_pernas", nome: "Tubos das pernas (até 3 mm do piso)", cor: 0xe0218a, malhas: ["tubo_perna_E_v11", "tubo_perna_D_v11"], on: true, reto: true },
     { id: "t_braco", nome: "Barras dos braços (aço Ø12,7, dobradas)", cor: 0x2ea8e0, malhas: ["barra_braco_E", "barra_braco_D"], on: true, reto: true },
