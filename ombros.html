@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Astro — Ombros</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+/* mesma linguagem do visualizador da pose fixa: vista 3D e camadas em cima, corte 2D embaixo */
+:root{
+  --bg:#f5f4f1; --painel:#ffffff; --fg:#1d232a; --fg2:#5c666f; --vista:#e9e7e2;
+  --tubo:#1565c0; --junta:#e65100; --linha:#d9d6cf; --cota:#5c666f; --eixo:#9aa0a6;
+  --display:"Archivo","IBM Plex Sans",system-ui,sans-serif;
+  --corpo:"IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15191e; --painel:#1d232a; --fg:#e8eaed; --fg2:#9aa4ad; --vista:#101418;
+    --tubo:#64a5e8; --junta:#ff8a3d; --linha:#333b44; --cota:#9aa4ad; --eixo:#5c666f;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15191e; --painel:#1d232a; --fg:#e8eaed; --fg2:#9aa4ad; --vista:#101418;
+  --tubo:#64a5e8; --junta:#ff8a3d; --linha:#333b44; --cota:#9aa4ad; --eixo:#5c666f;
+  color-scheme:dark;
+}
+body{background:var(--bg);color:var(--fg);font-family:var(--corpo);
+  padding-inline:16px;padding-block:18px;max-width:1280px;margin-inline:auto}
+header h1{font-family:var(--display);font-weight:700;font-size:1.5rem;margin:0;text-wrap:balance}
+header p{margin:.3rem 0 0;color:var(--fg2);font-size:.9rem;max-width:80ch}
+a{color:var(--tubo)}
+.principal{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;margin-top:18px}
+.coluna-dir{display:flex;flex-direction:column;gap:16px;min-width:0}
+.painel{background:var(--painel);border:1px solid var(--linha);border-radius:8px;min-width:0}
+.barra-vis{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  padding:8px 14px;border-bottom:1px solid var(--linha)}
+.painel h2{font-family:var(--display);font-size:.82rem;font-weight:700;margin:0;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--fg2)}
+.painel>h2{padding:12px 16px 0}
+.modos{display:flex;gap:6px;flex-wrap:wrap}
+.modos button{font-family:var(--corpo);font-size:.8rem;padding:4px 12px;border-radius:999px;
+  border:1px solid var(--linha);background:var(--bg);color:var(--fg2);cursor:pointer}
+.modos button[aria-pressed="true"]{background:var(--tubo);border-color:var(--tubo);color:#fff}
+.modos button:focus-visible{outline:2px solid var(--junta)}
+#vista3d{position:relative;height:min(62vh,600px);min-height:380px;touch-action:none;background:var(--vista);border-radius:0 0 8px 8px;overflow:hidden}
+#vista3d canvas{display:block}
+#aviso{position:absolute;inset:0;display:grid;place-items:center;padding:16px;text-align:center;
+  font-family:var(--mono);font-size:.85rem;color:var(--fg2);pointer-events:none}
+.painel-corpo{padding:12px 16px}
+.camadas{display:grid;gap:8px}
+.camadas label{display:flex;align-items:center;gap:9px;font-size:.9rem;cursor:pointer}
+.camadas i{width:12px;height:12px;border-radius:3px;flex:none}
+.controle{display:grid;gap:4px;margin-top:12px;font-size:.78rem;color:var(--fg2)}
+.controle input[type=range]{width:100%;accent-color:var(--tubo)}
+.controle label{display:flex;gap:8px;align-items:center;font-size:.84rem;color:var(--fg);cursor:pointer}
+dl.info{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:0;font-size:.86rem}
+dl.info dt{color:var(--fg2)}
+dl.info dd{margin:0;font-variant-numeric:tabular-nums;text-align:right}
+.nota{font-size:.82rem;color:var(--fg2);margin:10px 0 0}
+#painel2d{margin-top:16px}
+#vista2d{position:relative;background:var(--vista);border-radius:0 0 8px 8px;overflow:hidden;touch-action:none}
+#vista2d svg{display:block;width:100%;height:min(46vh,440px);min-height:260px;cursor:grab}
+#vista2d svg.arrasta{cursor:grabbing}
+#legenda2d{display:flex;flex-wrap:wrap;gap:6px 16px;padding:8px 14px;font-size:.78rem;color:var(--fg2);border-top:1px solid var(--linha)}
+#legenda2d span{display:inline-flex;align-items:center;gap:6px}
+#legenda2d i{width:11px;height:11px;border-radius:2px;display:inline-block}
+footer{color:var(--fg2);font-size:.78rem;margin-top:16px;font-family:var(--mono)}
+@media (max-width:860px){
+  .principal{grid-template-columns:1fr}
+  #vista3d{height:56vh}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Astro — Ombros</h1>
+  <p>Detalhe dos ombros da pose fixa (OS-2026-0821 · FAZ Makerspace): tubo do ombro 1" × 1/8", luvas PETG com aba de batente, barras de aço Ø 12,7 e um trecho de 100 mm de cada braço. Embaixo, o corte do tubo pelo eixo.</p>
+  <p><a href="index.html">← Voltar ao visualizador da pose fixa</a></p>
+</header>
+
+<div class="principal">
+  <div class="painel">
+    <div class="barra-vis">
+      <h2>Vista 3D</h2>
+      <div class="modos" id="vistas">
+        <button data-v="frente" aria-pressed="true">Frente</button>
+        <button data-v="cima" aria-pressed="false">Cima</button>
+        <button data-v="E" aria-pressed="false">Ombro E</button>
+        <button data-v="D" aria-pressed="false">Ombro D</button>
+        <button data-v="livre" aria-pressed="false">3/4</button>
+      </div>
+    </div>
+    <div id="vista3d"><div id="aviso">Carregando modelos…</div></div>
+  </div>
+
+  <div class="coluna-dir">
+    <div class="painel">
+      <h2>Camadas</h2>
+      <div class="painel-corpo">
+        <div class="camadas" id="camadas"></div>
+        <div class="controle">
+          <span>Transparência do tubo e do braço</span>
+          <input type="range" id="opac" min="10" max="100" value="35" aria-label="Opacidade do tubo e do braço">
+          <label><input type="checkbox" id="cortar3d"> Cortar a vista 3D no plano do corte 2D</label>
+        </div>
+      </div>
+    </div>
+    <div class="painel">
+      <h2>Medidas</h2>
+      <div class="painel-corpo">
+        <dl class="info" id="info"></dl>
+        <p class="nota">Os furos da luva e do anel aparecem voltados para a frente do robô nos dois lados. Essa posição ainda é uma suposição.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="painel" id="painel2d">
+  <div class="barra-vis">
+    <h2>Corte do tubo pelo eixo</h2>
+    <div class="modos" id="planos">
+      <button data-p="vertical" aria-pressed="true">Lateral (vista de frente)</button>
+      <button data-p="horizontal" aria-pressed="false">Plano dos furos (vista de cima)</button>
+    </div>
+    <div class="modos" id="zoom2d">
+      <button data-z="D" aria-pressed="false">Ombro D</button>
+      <button data-z="tudo" aria-pressed="true">Tudo</button>
+      <button data-z="E" aria-pressed="false">Ombro E</button>
+    </div>
+  </div>
+  <div id="vista2d"><svg id="svg2d" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Corte do tubo do ombro pelo eixo"></svg></div>
+  <div id="legenda2d"></div>
+</div>
+<footer>FAZ Makerspace · OS-2026-0821 · detalhe dos ombros · rev. 16/11/2026 · gerado por esqueleto-simples/s07_ombros_web.py</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function () {
+  var D_ = "dados/ombros/";
+  var CAMADAS = [
+    { id: "tubo", nome: "Tubo do ombro (alumínio 1\" × 1/8\")", cor: 0xc01b9e, malhas: ["tubo_ombro"], on: true, transp: true },
+    { id: "disco", nome: "Discos de corte das aberturas dos braços", cor: 0x2fbf71, malhas: ["disco_E", "disco_D"], on: true, transp: true, disco: true },
+    { id: "luva", nome: "Luvas dos ombros E e D (PETG, rev. 4 com aba)", cor: 0x3cae4f, malhas: ["luva_E", "luva_D"], on: true },
+    { id: "barra", nome: "Pinos de 1/2\" (barras de aço Ø 12,7)", cor: 0x2ea8e0, malhas: ["barra_E", "barra_D"], on: true },
+    { id: "braco", nome: "Braços: trecho de 100 mm (corte ortogonal ao pino)", cor: 0xa9a59b, malhas: ["braco_E", "braco_D"], on: true, transp: true },
+    { id: "anel", nome: "Anéis externos (PETG, trava)", cor: 0xf2a33c, malhas: ["anel_E", "anel_D"], on: false }
+  ];
+  var cssCor = function (c) { return "#" + c.toString(16).padStart(6, "0"); };
+  var porMalha = {}; CAMADAS.forEach(function (c) { c.malhas.forEach(function (m) { porMalha[m] = c; }); });
+
+  // ---------------- painel de camadas (vale para 3D e 2D)
+  var lista = document.getElementById("camadas");
+  CAMADAS.forEach(function (c) {
+    var l = document.createElement("label"), i = document.createElement("input"), s = document.createElement("i"), t = document.createElement("span");
+    i.type = "checkbox"; i.checked = c.on;
+    i.addEventListener("change", function () { c.on = i.checked; if (c.grupo) c.grupo.visible = c.on; desenha2d(); });
+    s.style.background = cssCor(c.cor); t.textContent = c.nome;
+    l.appendChild(i); l.appendChild(s); l.appendChild(t); lista.appendChild(l);
+  });
+
+  // ---------------- 3D
+  var box = document.getElementById("vista3d"), aviso = document.getElementById("aviso");
+  function falha(m) { aviso.textContent = m; aviso.style.display = "grid"; }
+  var renderer = null;
+  if (!window.THREE) falha("Não foi possível carregar a biblioteca 3D.");
+  else { try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); } catch (e) { falha("Este navegador não abriu o WebGL. Tente abrir em outro navegador."); } }
+
+  var MAN = null, CORTES = null, plano3d = null, matTransp = [], ctl, cam, cena, Po;
+  if (renderer) {
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.localClippingEnabled = true;
+    box.appendChild(renderer.domElement);
+    cena = new THREE.Scene();
+    cam = new THREE.PerspectiveCamera(28, 1, 5, 8000);
+    ctl = new THREE.OrbitControls(cam, renderer.domElement);
+    ctl.enableDamping = true; ctl.dampingFactor = 0.1; ctl.minDistance = 60; ctl.maxDistance = 4000;
+    cena.add(new THREE.HemisphereLight(0xffffff, 0x8a8f96, 0.85));
+    var l1 = new THREE.DirectionalLight(0xffffff, 0.55); l1.position.set(600, 1500, 1400); cena.add(l1);
+    var l2 = new THREE.DirectionalLight(0xffffff, 0.3); l2.position.set(-900, 500, -1000); cena.add(l2);
+    plano3d = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
+  }
+  function geometria(buf, m) {
+    var q = new Uint16Array(buf, 0, m.v * 3), p = new Float32Array(m.v * 3);
+    for (var i = 0; i < m.v; i++) for (var k = 0; k < 3; k++) p[3 * i + k] = m.lo[k] + q[3 * i + k] / 65535 * (m.hi[k] - m.lo[k]);
+    var g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(p, 3));
+    g.setIndex(new THREE.BufferAttribute(new Uint32Array(buf, m.v * 6 + m.pad, m.t * 3), 1));
+    g.computeVertexNormals(); return g;
+  }
+  var cortar = false;
+  function material(c) {
+    var o = { color: c.cor, roughness: 0.6, metalness: c.id === "barra" ? 0.35 : 0.05, side: THREE.DoubleSide, flatShading: c.id !== "braco", clippingPlanes: [] };
+    if (c.transp) { o.transparent = true; o.opacity = c.disco ? 0.3 : 0.35; o.depthWrite = false; }
+    var m = new THREE.MeshStandardMaterial(o);
+    if (c.transp && !c.disco) matTransp.push(m);
+    return m;
+  }
+  var todosMat = [];
+
+  Promise.all([fetch(D_ + "ombros.json").then(function (r) { if (!r.ok) throw 0; return r.json(); }),
+               fetch(D_ + "cortes.json").then(function (r) { if (!r.ok) throw 0; return r.json(); })])
+  .then(function (res) {
+    MAN = res[0]; CORTES = res[1]; preencheInfo(); desenha2d();
+    if (!renderer) return;
+    Po = new THREE.Vector3().fromArray(MAN.Po);
+    var F = new THREE.Vector3().fromArray(MAN.frente);
+    plano3d.setFromNormalAndCoplanarPoint(F.clone().negate(), Po);
+    var fila = [];
+    CAMADAS.forEach(function (c) {
+      c.grupo = new THREE.Group(); c.grupo.visible = c.on; cena.add(c.grupo);
+      c.malhas.forEach(function (n) {
+        fila.push(fetch(D_ + n + ".bin").then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(function (b) {
+          var mat = material(c); todosMat.push(mat);
+          var me = new THREE.Mesh(geometria(b, MAN.malhas[n]), mat); me.renderOrder = c.transp ? 2 : 1; c.grupo.add(me);
+        }));
+      });
+    });
+    vista("frente");
+    return Promise.all(fila);
+  }).then(function () { aviso.style.display = "none"; })
+    .catch(function () { falha("Não foi possível carregar os modelos."); });
+
+  document.getElementById("opac").addEventListener("input", function (e) {
+    var v = e.target.value / 100;
+    matTransp.forEach(function (m) { m.opacity = v; m.transparent = v < 1; m.depthWrite = v >= 1; m.needsUpdate = true; });
+  });
+  document.getElementById("cortar3d").addEventListener("change", function (e) {
+    cortar = e.target.checked;
+    todosMat.forEach(function (m) { m.clippingPlanes = cortar ? [plano3d] : []; m.needsUpdate = true; });
+  });
+
+  function vista(n) {
+    if (!renderer || !MAN) return;
+    var u = new THREE.Vector3().fromArray(MAN.eixo), F = new THREE.Vector3().fromArray(MAN.frente), Y = new THREE.Vector3().fromArray(MAN.cima);
+    var alvo = Po.clone(), dir, dist = 1350;
+    if (n === "frente") dir = F.clone();
+    else if (n === "cima") dir = Y.clone().addScaledVector(F, 0.02);
+    else if (n === "livre") dir = F.clone().multiplyScalar(0.75).addScaledVector(Y, 0.42).addScaledVector(u, 0.5);
+    else {
+      var r = CORTES.ref[n]; alvo = Po.clone().addScaledVector(u, (r.ponta + r.trecho[1]) / 2);
+      dir = F.clone().multiplyScalar(0.8).addScaledVector(Y, 0.35).addScaledVector(u, 0.45 * r.sg); dist = 560;
+    }
+    dir.normalize(); cam.position.copy(alvo).addScaledVector(dir, dist); cam.up.set(0, 1, 0); ctl.target.copy(alvo); ctl.update();
+    document.querySelectorAll("#vistas button").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.v === n ? "true" : "false"); });
+  }
+  document.querySelectorAll("#vistas button").forEach(function (b) { b.addEventListener("click", function () { vista(b.dataset.v); }); });
+  function ajusta() { if (!renderer) return; var w = box.clientWidth, h = box.clientHeight; renderer.setSize(w, h); cam.aspect = w / h; cam.updateProjectionMatrix(); }
+  if (renderer) { window.addEventListener("resize", ajusta); ajusta(); (function ciclo() { requestAnimationFrame(ciclo); ctl.update(); renderer.render(cena, cam); })(); }
+
+  function preencheInfo() {
+    var r = CORTES.ref.E, f = function (x) { return (Math.round(x * 10) / 10).toLocaleString("pt-BR"); };
+    var linhas = [
+      ["Tubo do ombro (boca a boca)", f(r.boca * 2) + " mm"],
+      ["Ponta da barra até a boca", f(r.boca - r.ponta) + " mm"],
+      ["Luva", "75 + aba 1,5 mm"],
+      ["Aba da luva", "Ø 25 × 1,5"],
+      ["Ressaltos da luva", "Ø 19,15 / Ø 12,6"],
+      ["Furos de trava (da ponta)", "12 e 42 mm"],
+      ["Anel (da ponta)", "4 a 50 mm"],
+      ["Disco de corte (raio)", "43,5 mm"],
+      ["Trecho do braço", MAN.trecho_braco_mm + " mm, do centro do disco para fora"]
+    ];
+    var dl = document.getElementById("info");
+    linhas.forEach(function (x) { var a = document.createElement("dt"), b = document.createElement("dd"); a.textContent = x[0]; b.textContent = x[1]; dl.appendChild(a); dl.appendChild(b); });
+  }
+
+  // ---------------- 2D
+  var svg = document.getElementById("svg2d"), NS = "http://www.w3.org/2000/svg";
+  var planoAtual = "vertical", vb = null, ZOOMS = null;
+  var ORDEM = ["braco_E", "braco_D", "tubo_ombro", "anel_E", "anel_D", "luva_E", "luva_D", "barra_E", "barra_D", "disco_E", "disco_D"];
+  function el(t, a, pai) { var e = document.createElementNS(NS, t); for (var k in a) e.setAttribute(k, a[k]); (pai || svg).appendChild(e); return e; }
+  function caminho(laços, sy) {
+    return laços.map(function (l) { return "M" + l.p.map(function (q) { return q[0].toFixed(2) + "," + (sy * q[1]).toFixed(2); }).join("L") + (l.fechado ? "Z" : ""); }).join("");
+  }
+  function cota(x1, x2, y, txt, g) {
+    el("path", { d: "M" + x1 + "," + y + "H" + x2, stroke: "var(--cota)", "stroke-width": 1, "vector-effect": "non-scaling-stroke", "marker-start": "url(#seta)", "marker-end": "url(#seta)" }, g);
+    [x1, x2].forEach(function (x) { el("path", { d: "M" + x + "," + (y - 3) + "V" + (y + 3), stroke: "var(--cota)", "stroke-width": 1, "vector-effect": "non-scaling-stroke" }, g); });
+    var t = el("text", { x: (x1 + x2) / 2, y: y - 2.2, "text-anchor": "middle", "font-size": 4.2, fill: "var(--fg)", "font-family": "IBM Plex Mono, monospace" }, g); t.textContent = txt;
+  }
+  function desenha2d() {
+    if (!CORTES) return;
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var defs = el("defs", {});
+    var mk = el("marker", { id: "seta", viewBox: "0 0 10 10", refX: 5, refY: 5, markerWidth: 5, markerHeight: 5, orient: "auto-start-reverse" }, defs);
+    el("path", { d: "M0,1L10,5L0,9z", fill: "var(--cota)" }, mk);
+    var C = CORTES[planoAtual], sy = planoAtual === "vertical" ? -1 : 1;   // vertical: cima para cima; horizontal: vista de cima, frente para baixo
+    var g = el("g", {});
+    // eixo
+    el("path", { d: "M-320,0H320", stroke: "var(--eixo)", "stroke-width": 0.8, "stroke-dasharray": "8 3 2 3", "vector-effect": "non-scaling-stroke" }, g);
+    ORDEM.forEach(function (n) {
+      var c = porMalha[n], L = C.laços[n];
+      if (!c || !c.on || !L || !L.length) return;
+      var fechado = L.every(function (l) { return l.fechado; }) && n.indexOf("braco") !== 0;
+      el("path", { d: caminho(L, sy), fill: fechado ? cssCor(c.cor) : "none", "fill-opacity": n === "tubo_ombro" ? 0.55 : 0.85, "fill-rule": "evenodd",
+        stroke: n.indexOf("braco") === 0 ? cssCor(0x6f6a60) : "rgba(0,0,0,.55)", "stroke-width": n.indexOf("braco") === 0 ? 1.2 : 0.5, "vector-effect": "non-scaling-stroke" }, g);
+    });
+    // referências e cotas de cada lado
+    ["E", "D"].forEach(function (L) {
+      var r = CORTES.ref[L], s = r.sg, top = -32;
+      el("path", { d: "M" + r.boca + ",-16V16", stroke: "var(--junta)", "stroke-width": 1, "stroke-dasharray": "3 2", "vector-effect": "non-scaling-stroke" }, g);
+      var tb = el("text", { x: r.boca + s * 1.5, y: 21, "text-anchor": s > 0 ? "start" : "end", "font-size": 3.6, fill: "var(--junta)", "font-family": "IBM Plex Sans, sans-serif" }, g); tb.textContent = "boca do tubo";
+      r.furos.forEach(function (x) { el("path", { d: "M" + x + ",-20V20", stroke: "#d0312d", "stroke-width": 0.9, "stroke-dasharray": "2 2", "vector-effect": "non-scaling-stroke" }, g); });
+      var tf = el("text", { x: r.furos[0], y: 25, "text-anchor": "middle", "font-size": 3.4, fill: "#d0312d", "font-family": "IBM Plex Sans, sans-serif" }, g); tf.textContent = "trava";
+      cota(r.ponta, r.boca, top, "75 (ponta da barra → boca)", g);
+      cota(r.ponta, r.furos[0], top + 9, "12", g); cota(r.furos[0], r.furos[1], top + 9, "30", g);
+      cota(r.trecho[0], r.trecho[1], top - 12, "trecho do braço 100", g);
+      var tl = el("text", { x: r.trecho[1] + s * 4, y: 2, "text-anchor": s > 0 ? "start" : "end", "font-size": 6, "font-weight": 700, fill: "var(--fg2)", "font-family": "Archivo, sans-serif" }, g);
+      tl.textContent = L === "E" ? "ombro E" : "ombro D";
+    });
+    var tc = el("text", { x: 0, y: -16, "text-anchor": "middle", "font-size": 3.6, fill: "var(--fg2)", "font-family": "IBM Plex Sans, sans-serif" }, g); tc.textContent = "meio do tubo";
+    var tv = el("text", { x: 0, y: 40, "text-anchor": "middle", "font-size": 3.6, fill: "var(--fg2)", "font-family": "IBM Plex Sans, sans-serif" }, g);
+    tv.textContent = planoAtual === "vertical" ? "vista de frente · cima para cima" : "vista de cima · frente para baixo (furos de trava na frente)";
+    if (planoAtual === "horizontal") { var tr = el("text", { x: 0, y: 46, "text-anchor": "middle", "font-size": 3.4, fill: "var(--fg2)", "font-family": "IBM Plex Sans, sans-serif" }, g);
+      tr.textContent = "a luva aparece só do lado da frente: atrás, este plano passa pelo rasgo de 1,2 mm, que fica oposto aos furos"; }
+    if (!ZOOMS) {
+      var e = CORTES.ref.E;
+      ZOOMS = { tudo: [-310, -70, 620, 130], E: [e.ponta - 12, -60, e.trecho[1] - e.ponta + 40, 110], D: [-(e.trecho[1] + 28), -60, e.trecho[1] - e.ponta + 40, 110] };
+      vb = ZOOMS.tudo.slice();
+    }
+    aplicaVB(); legenda();
+  }
+  function aplicaVB() { svg.setAttribute("viewBox", vb.join(" ")); svg.setAttribute("preserveAspectRatio", "xMidYMid meet"); }
+  function legenda() {
+    var lg = document.getElementById("legenda2d"); lg.innerHTML = "";
+    CAMADAS.forEach(function (c) { if (!c.on) return; var s = document.createElement("span"), i = document.createElement("i"); i.style.background = cssCor(c.cor); s.appendChild(i); s.appendChild(document.createTextNode(c.nome)); lg.appendChild(s); });
+    var s = document.createElement("span"); s.textContent = "Arraste para mover · roda do mouse para aproximar"; lg.appendChild(s);
+  }
+  document.querySelectorAll("#planos button").forEach(function (b) { b.addEventListener("click", function () {
+    planoAtual = b.dataset.p; document.querySelectorAll("#planos button").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); }); desenha2d(); }); });
+  document.querySelectorAll("#zoom2d button").forEach(function (b) { b.addEventListener("click", function () {
+    vb = ZOOMS[b.dataset.z].slice(); aplicaVB(); document.querySelectorAll("#zoom2d button").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); }); }); });
+  // arrastar e aproximar
+  function pontoSVG(ev) { var r = svg.getBoundingClientRect(), s = Math.max(vb[2] / r.width, vb[3] / r.height), ox = (r.width * s - vb[2]) / 2, oy = (r.height * s - vb[3]) / 2;
+    return [vb[0] - ox + (ev.clientX - r.left) * s, vb[1] - oy + (ev.clientY - r.top) * s, s]; }
+  var arr = null;
+  svg.addEventListener("pointerdown", function (ev) { arr = { x: ev.clientX, y: ev.clientY, vb: vb.slice(), s: pontoSVG(ev)[2] }; svg.setPointerCapture(ev.pointerId); svg.classList.add("arrasta"); });
+  svg.addEventListener("pointermove", function (ev) { if (!arr) return; vb[0] = arr.vb[0] - (ev.clientX - arr.x) * arr.s; vb[1] = arr.vb[1] - (ev.clientY - arr.y) * arr.s; aplicaVB(); });
+  svg.addEventListener("pointerup", function () { arr = null; svg.classList.remove("arrasta"); });
+  svg.addEventListener("wheel", function (ev) { ev.preventDefault(); var p = pontoSVG(ev), k = ev.deltaY > 0 ? 1.15 : 1 / 1.15;
+    if (vb[2] * k < 15 || vb[2] * k > 1500) return;
+    vb = [p[0] - (p[0] - vb[0]) * k, p[1] - (p[1] - vb[1]) * k, vb[2] * k, vb[3] * k]; aplicaVB(); }, { passive: false });
+})();
+</script>
+</body>
+</html>
